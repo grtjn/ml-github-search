@@ -3,24 +3,58 @@
   'use strict';
 
   angular.module('app.search')
+    .factory('SearchModel', SearchModel)
     .controller('SearchCtrl', SearchCtrl);
 
-  SearchCtrl.$inject = ['$scope', '$location', 'userService', 'MLSearchFactory'];
+  SearchModel.$inject = ['MLSearchFactory'];
+  SearchCtrl.$inject = ['$scope', '$location', 'userService', 'SearchModel'];
 
   // inherit from MLSearchController
   var superCtrl = MLSearchController.prototype;
   SearchCtrl.prototype = Object.create(superCtrl);
 
-  function SearchCtrl($scope, $location, userService, searchFactory) {
-    var ctrl = this;
+  function SearchModel(searchFactory) {
     var mlSearch = searchFactory.newContext();
+    return {
+      mlSearch: mlSearch
+    };
+  }
 
-    superCtrl.constructor.call(ctrl, $scope, $location, mlSearch);
+  function SearchCtrl($scope, $location, userService, searchModel) {
+    var ctrl = this;
 
-    ctrl.init();
+    superCtrl.constructor.call(ctrl, $scope, $location, searchModel.mlSearch);
+
+    function urlChanged() {
+      var params = _.chain( $location.search() )
+        .omit( ctrl.mlSearch.getParamsKeys() )
+        .merge( ctrl.mlSearch.getParams() )
+        .value();
+      return !_.isEmpty($location.$$search) && !_.isEqual($location.$$search, params);
+    }
+
+    //ctrl.init();
+    (function init() {
+      // monitor URL params changes (forward/back, etc.)
+      ctrl.$scope.$on('$locationChangeSuccess', ctrl.locationChange.bind(ctrl));
+
+      // capture initial URL params in mlSearch and ctrl
+      if ( ctrl.parseExtraURLParams ) {
+        ctrl.parseExtraURLParams();
+      }
+
+      if (ctrl.mlSearch.results.results && !urlChanged()) {
+        ctrl.page = ctrl.mlSearch.page;
+        ctrl.qtext = ctrl.mlSearch.qtext;
+        ctrl.response = ctrl.mlSearch.results;
+        ctrl.updateURLParams();
+      } else {
+        ctrl.mlSearch.fromParams().then( ctrl._search.bind(ctrl) );
+      }
+    })();
 
     ctrl.setSnippet = function(type) {
-      mlSearch.setSnippet(type);
+      ctrl.mlSearch.setSnippet(type);
       ctrl.search();
     };
 
