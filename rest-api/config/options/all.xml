@@ -74,21 +74,114 @@
   <!-- Annotations (allowed pretty much anywhere) allow adding text or elements to feed custom components with options that would normally not validate) -->
   <annotation>Delta options here</annotation>
 
-  <!-- Facet based on document collections, simple yet elegant -->
-  <constraint name="Collection">
-    <collection facet="true" />
-    <!-- optionally enable a prefix to see a specific subset of facets
-    <collection facet="true" prefix="data/" />
-    -->
-  </constraint>
-
-  <!-- Example facet based on the sample-data -->
-  <constraint name="eyeColor">
+  <constraint name="owner">
     <range type="xs:string" facet="true" collation="http://marklogic.com/collation/codepoint">
-      <facet-option>limit=5</facet-option>
+      <facet-option>limit=10</facet-option>
       <facet-option>frequency-order</facet-option>
       <facet-option>descending</facet-option>
-      <json-property>eyeColor</json-property>
+      <path-index>/repo/owner/login</path-index>
+    </range>
+  </constraint>
+
+  <constraint name="type">
+    <range type="xs:string" facet="true" collation="http://marklogic.com/collation/codepoint">
+      <facet-option>limit=10</facet-option>
+      <facet-option>frequency-order</facet-option>
+      <facet-option>descending</facet-option>
+      <path-index>/type</path-index>
+    </range>
+  </constraint>
+
+  <constraint name="keyword">
+    <range type="xs:string" facet="true" collation="http://marklogic.com/collation//S1">
+      <facet-option>limit=10</facet-option>
+      <facet-option>frequency-order</facet-option>
+      <facet-option>descending</facet-option>
+      <path-index>keywords</path-index>
+    </range>
+  </constraint>
+
+  <constraint name="language">
+    <range type="xs:string" facet="true" collation="http://marklogic.com/collation/codepoint">
+      <facet-option>limit=10</facet-option>
+      <facet-option>frequency-order</facet-option>
+      <facet-option>descending</facet-option>
+      <path-index>/repo/language</path-index>
+    </range>
+  </constraint>
+
+  <constraint name="license">
+    <range type="xs:string" facet="true" collation="http://marklogic.com/collation/codepoint">
+      <facet-option>limit=10</facet-option>
+      <facet-option>frequency-order</facet-option>
+      <facet-option>descending</facet-option>
+      <path-index>/license</path-index>
+    </range>
+  </constraint>
+
+  <constraint name="created">
+    <range type="xs:dateTime" facet="true">
+      <facet-option>limit=10</facet-option>
+      <facet-option>item-order</facet-option>
+      <facet-option>ascending</facet-option>
+      <path-index>/repo/created_at</path-index>
+      <computed-bucket anchor="now" name="longer"      lt="-P3Y">longer</computed-bucket>
+      <computed-bucket anchor="now" name="3 years ago" ge="-P3Y"  lt="-P2Y">3 years ago</computed-bucket>
+      <computed-bucket anchor="now" name="2 years ago" ge="-P2Y"  lt="-P1Y">2 years ago</computed-bucket>
+      <computed-bucket anchor="now" name="year ago"    ge="-P1Y"  lt="-P30D">year ago</computed-bucket>
+      <computed-bucket anchor="now" name="month ago"   ge="-P30D" lt="-P7D">month ago</computed-bucket>
+      <computed-bucket anchor="now" name="week ago"    ge="-P7D"  lt="-P1D">week ago</computed-bucket>
+      <computed-bucket anchor="now" name="today"       ge="-P1D">today</computed-bucket>
+    </range>
+  </constraint>
+
+  <constraint name="updated">
+    <range type="xs:dateTime" facet="true">
+      <facet-option>limit=10</facet-option>
+      <facet-option>item-order</facet-option>
+      <facet-option>descending</facet-option>
+      <path-index>/repo/updated_at</path-index>
+      <computed-bucket anchor="now" name="longer"    lt="-P1Y">longer</computed-bucket>
+      <computed-bucket anchor="now" name="year ago"  ge="-P1Y"  lt="-P30D">year ago</computed-bucket>
+      <computed-bucket anchor="now" name="month ago" ge="-P30D" lt="-P7D">month ago</computed-bucket>
+      <computed-bucket anchor="now" name="week ago"  ge="-P7D"  lt="-P1D">week ago</computed-bucket>
+      <computed-bucket anchor="now" name="today"     ge="-P1D">today</computed-bucket>
+    </range>
+  </constraint>
+
+  <constraint name="watchers">
+    <range type="xs:int" facet="true">
+      <facet-option>limit=5</facet-option>
+      <facet-option>item-order</facet-option>
+      <facet-option>descending</facet-option>
+      <path-index>/repo/watchers_count</path-index>
+    </range>
+  </constraint>
+
+  <constraint name="stars">
+    <range type="xs:int" facet="true">
+      <facet-option>limit=5</facet-option>
+      <facet-option>item-order</facet-option>
+      <facet-option>descending</facet-option>
+      <path-index>/repo/stargazers_count</path-index>
+    </range>
+  </constraint>
+
+  <constraint name="forks">
+    <range type="xs:int" facet="true">
+      <facet-option>limit=5</facet-option>
+      <facet-option>item-order</facet-option>
+      <facet-option>descending</facet-option>
+      <path-index>/repo/forks_count</path-index>
+    </range>
+  </constraint>
+
+  <constraint name="issues">
+    <range type="xs:int" facet="true">
+      <facet-option>limit=5</facet-option>
+      <facet-option>item-order</facet-option>
+      <facet-option>ascending</facet-option>
+      <path-index>/repo/open_issues_count</path-index>
     </range>
   </constraint>
 
