@@ -58,17 +58,6 @@
         controller: 'SearchCtrl',
         controllerAs: 'ctrl'
       })
-      .state('root.create', {
-        url: '/create',
-        templateUrl: 'app/create/create.html',
-        controller: 'CreateCtrl',
-        controllerAs: 'ctrl',
-        resolve: {
-          stuff: function() {
-            return null;
-          }
-        }
-      })
       .state('root.view', {
         url: '/detail{uri:path}',
         params: {
@@ -88,12 +77,6 @@
             });
           }
         }
-      })
-      .state('root.profile', {
-        url: '/profile',
-        templateUrl: 'app/user/profile.html',
-        controller: 'ProfileCtrl',
-        controllerAs: 'ctrl'
       })
       .state('root.login', {
         url: '/login?state&params',
