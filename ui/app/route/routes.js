@@ -77,12 +77,6 @@
             });
           }
         }
-      })
-      .state('root.login', {
-        url: '/login?state&params',
-        templateUrl: 'app/login/login-full.html',
-        controller: 'LoginFullCtrl',
-        controllerAs: 'ctrl'
       });
   }
 }());

@@ -16,6 +16,8 @@ var options = {
 };
 
 router.get('/user/status', function(req, res) {
+  // faking session user to short-cut to defaultUser
+  req.session.user = { name: options.defaultUser, password: options.defaultPass, profile: null };
   noCache(res);
   if (req.session.user === undefined) {
     res.send('{"authenticated": false}');
