@@ -7,7 +7,6 @@
     'ml.search.tpls',
     'ml.utils',
     'ngJsonExplorer',
-    'app.create',
     'app.detail',
     'app.error',
     'app.login',
