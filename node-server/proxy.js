@@ -28,6 +28,7 @@ router.get('*', function(req, res) {
   //proxy(req, res);
 });
 
+/*
 router.put('*', function(req, res) {
   noCache(res);
   // For PUT requests, require authentication
@@ -65,6 +66,7 @@ router.delete('*', function(req, res) {
     proxy(req, res);
   }
 });
+*/
 
 function getAuth(options, session) {
   var auth = null;
