@@ -37,6 +37,9 @@
   </grammar>
 
   <!-- Default sort order. You can also associate states with sort orders to allow switching sort orders -->
+  <sort-order type="xs:dateTime" direction="descending">
+    <path-index>/repo/updated_at</path-index>
+  </sort-order>
   <sort-order direction="descending">
     <score/>
   </sort-order>
