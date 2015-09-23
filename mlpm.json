@@ -4,6 +4,7 @@
   "description": "Sample app generated with slush-marklogic-node",
   "private": true,
   "dependencies": {
-    "ml-github-api": "0.0.*"
+    "ml-github-api": "0.0.*",
+    "ml-snippeting": "1.0.*"
   }
 }

@@ -45,8 +45,7 @@
   </sort-order>
 
   <!-- Not used, but the default snippeting behavior if no state (see compact/detailed below) was specified -->
-  <transform-results apply="snippet">
-    <preferred-elements><element ns="" name="body"/></preferred-elements>
+  <transform-results apply="snippet" ns="http://marklogic.com/doc-snippet" at="/ext/mlpm_modules/ml-snippeting/doc-snippet.xqy">
     <max-matches>1</max-matches>
     <max-snippet-chars>150</max-snippet-chars>
     <per-match-tokens>20</per-match-tokens>
@@ -57,16 +56,14 @@
   <!-- This controls the snippet size toggle -->
   <operator name="results">
     <state name="compact">
-      <transform-results apply="snippet">
-        <preferred-elements><element ns="" name="body"/></preferred-elements>
+      <transform-results apply="snippet" ns="http://marklogic.com/doc-snippet" at="/ext/mlpm_modules/ml-snippeting/doc-snippet.xqy">
         <max-matches>1</max-matches>
         <max-snippet-chars>150</max-snippet-chars>
         <per-match-tokens>20</per-match-tokens>
       </transform-results>
     </state>
     <state name="detailed">
-      <transform-results apply="snippet">
-        <preferred-elements><element ns="" name="body"/></preferred-elements>
+      <transform-results apply="snippet" ns="http://marklogic.com/doc-snippet" at="/ext/mlpm_modules/ml-snippeting/doc-snippet.xqy">
         <max-matches>2</max-matches>
         <max-snippet-chars>400</max-snippet-chars>
         <per-match-tokens>30</per-match-tokens>
