@@ -474,16 +474,7 @@
       </collections>
       <privileges>
         <privilege>
-          <privilege-name>xdmp:value</privilege-name>
-        </privilege>
-        <privilege>
-          <privilege-name>xdmp:add-response-header</privilege-name>
-        </privilege>
-        <privilege>
-          <privilege-name>xdmp:invoke</privilege-name>
-        </privilege>
-        <privilege>
-          <privilege-name>xdmp:with-namespaces</privilege-name>
+          <privilege-name>rest-reader</privilege-name>
         </privilege>
       </privileges>
     </role>
