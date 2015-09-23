@@ -15,7 +15,7 @@
 
 # port at which node server should be listening
 #APP_PORT=9040
-APP_PORT=80
+APP_PORT=9876
 
 # Node environment.  This should be 'build' for distribution or 'dev' for iterative development
 NODE_ENV=build
@@ -25,4 +25,4 @@ NODE_ENV=build
 
 # MarkLogic port to which node server should proxy
 #ML_PORT=8040
-ML_PORT=8040
+ML_PORT=8876
