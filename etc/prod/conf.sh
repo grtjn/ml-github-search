@@ -5,7 +5,7 @@
 #NAME=${0##*/}
 
 # location of your project's root
-# SOURCE_DIR=/space/projects/$NAME.live
+#SOURCE_DIR=/space/projects/$NAME.live
 
 # js entry point
 #SOURCE_FILE=boot.js
