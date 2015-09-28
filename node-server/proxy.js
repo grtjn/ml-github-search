@@ -28,6 +28,24 @@ router.get('*', function(req, res) {
   //proxy(req, res);
 });
 
+// Require authentication for POST requests
+router.post('/suggest', function(req, res) {
+  noCache(res);
+  if (req.session.user === undefined) {
+    res.status(401).send('Unauthorized');
+  } else {
+    proxy(req, res);
+  }
+});
+router.post('/values*', function(req, res) {
+  noCache(res);
+  if (req.session.user === undefined) {
+    res.status(401).send('Unauthorized');
+  } else {
+    proxy(req, res);
+  }
+});
+
 /*
 router.put('*', function(req, res) {
   noCache(res);
