@@ -272,7 +272,7 @@ gulp.task('optimize', ['inject', 'test'], function() {
 
     // Get the css
     .pipe(cssFilter)
-    .pipe($.minifyCss())
+    .pipe($.minifyCss({processImportFrom:['!fonts.googleapis.com']}))
     .pipe(cssFilter.restore())
 
     // Get the custom javascript
@@ -595,7 +595,8 @@ function startBrowserSync(env, specRunner) {
     logLevel: 'debug',
     logPrefix: 'gulp-patterns',
     notify: true,
-    reloadDelay: 0 //1000
+    reloadDelay: 0, //1000
+    ui: false
   } ;
   if (specRunner) {
     options.startPath = config.specRunnerFile;
