@@ -11,7 +11,7 @@
       <task-server>
         <scheduled-tasks>
           <scheduled-task>
-            <task-path>/schedules/update-repos.xqy</task-path>
+            <task-path>/ext/mlpm_modules/ml-github-api/update-repos.xqy</task-path>
             <task-root>/</task-root>
             <task-type>hourly</task-type>
             <task-period>1</task-period>
