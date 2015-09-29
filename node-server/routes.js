@@ -7,13 +7,33 @@ var four0four = require('./utils/404')();
 var http = require('http');
 var config = require('../gulp.config')();
 
+var environment = process.env.NODE_ENV;
+var envJson = getEnvOptions(environment === 'build' ? 'prod' : 'local');
+
 var options = {
-  appPort: process.env.APP_PORT || config.defaultPort,
-  mlHost: process.env.ML_HOST || config.marklogic.host,
-  mlHttpPort: process.env.ML_PORT || config.marklogic.httpPort,
-  defaultUser: process.env.ML_APP_USER || config.marklogic.user,
-  defaultPass: process.env.ML_APP_PASS || config.marklogic.password
+  appPort: process.env.APP_PORT || envJson['node-port'] || config.defaultPort,
+  mlHost: process.env.ML_HOST || envJson['ml-host'] || config.marklogic.host,
+  mlHttpPort: process.env.ML_PORT || envJson['ml-http-port'] || config.marklogic.httpPort,
+  defaultUser: process.env.ML_APP_USER || envJson['ml-app-user'] || config.marklogic.user,
+  defaultPass: process.env.ML_APP_PASS || envJson['ml-app-pass'] || config.marklogic.password
 };
+
+function getEnvOptions(env) {
+  var envJson;
+  var envFile = '../' + env + '.json';
+
+  try {
+    envJson = require(envFile);
+    console.log(envJson);
+  }
+  catch (e) {
+    envJson = {};
+    console.log('Couldn\'t find ' + envFile + '; you can create this file to override properties - ' +
+      '`gulp init-local` creates local.json which can be modified for other environments as well');
+  }
+
+  return envJson;
+}
 
 router.get('/user/status', function(req, res) {
   // faking session user to short-cut to defaultUser
