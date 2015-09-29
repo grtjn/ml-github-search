@@ -48,7 +48,7 @@ class ServerConfig
     initialize(@options) 
     
     r = execute_query %Q{
-        xdmp:invoke("/schedules/update-repos.xqy")
+        xdmp:invoke("/ext/mlpm_modules/ml-github-api/update-repos.xqy")
       },
       { :app_name => @properties["ml.app-name"] }
 
