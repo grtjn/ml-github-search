@@ -88,14 +88,14 @@
         $scope.events = $scope.events || {};
         $scope.font = $scope.font || 'Impact';
         $scope.ignoreList = $scope.ignoreList || [];
-        $scope.padding = $scope.padding || 5;
+        $scope.padding_ = $attrs.padding ? Number($scope.padding) : 5;
         $scope.rotate_ = $scope.rotate && function(d, i) {
           return $scope.rotate({word: $scope.words[i] });
         } || function() {
           return ~~(Math.random() * 2) * 90 - 45;
         };
-        $scope.slopeBase = $scope.slopeBase || 2;
-        $scope.slopeFactor = $scope.slopeFactor || 30;
+        $scope.slopeBase_ = $attrs.slopeBase ? Number($scope.slopeBase) : 2;
+        $scope.slopeFactor_ = $attrs.slopeFactor ? Number($scope.slopeFactor) : 30;
 
         $scope.createCloud = function(words) {
           var cloudWidth = $element[0].clientWidth + 0;
@@ -115,7 +115,7 @@
           });
 
           if (maxScore !== minScore) {
-            slope = $scope.slopeFactor / (maxScore - minScore);
+            slope = $scope.slopeFactor_ / (maxScore - minScore);
           }
 
           $scope.cloud = d3.layout.cloud().size([cloudWidth, cloudHeight]);
@@ -123,10 +123,10 @@
             .words(words.map(function(d) {
               return {
                 text: d.name,
-                size: d.score * slope + $scope.slopeBase
+                size: (d.score * slope) + $scope.slopeBase_
               };
             }))
-            .padding($scope.padding)
+            .padding($scope.padding_)
             .rotate($scope.rotate_)
             .font($scope.font)
             .fontSize(function(d) {
@@ -154,7 +154,7 @@
           });
 
           if (maxScore !== minScore) {
-            slope = $scope.slopeFactor / (maxScore - minScore);
+            slope = $scope.slopeFactor_ / (maxScore - minScore);
           }
 
           $scope.cloud = d3.layout.cloud().size([cloudWidth, cloudHeight]);
@@ -162,10 +162,10 @@
             .words(words.map(function(d) {
               return {
                 text: d.name,
-                size: d.score * slope + $scope.slopeBase
+                size: (d.score * slope) + $scope.slopeBase_
               };
             }))
-            .padding($scope.padding)
+            .padding($scope.padding_)
             .rotate($scope.rotate_)
             .font($scope.font)
             .fontSize(function(d) {
@@ -182,7 +182,7 @@
         function update(data) {
           var size = $scope.cloud.size();
           var fill = d3.scale.category20();
-          var words = d3.select('.cloud').select('svg')
+          var words = d3.select($element[0]).select('svg')
             .selectAll('g')
             .attr('transform', 'translate('+size[0]/2+','+size[1]/2+')')
             .selectAll('text')
@@ -216,7 +216,7 @@
         function draw(words) {
           var size = $scope.cloud.size();
           var fill = d3.scale.category20();
-          d3.select('.cloud').append('svg')
+          d3.select($element[0]).append('svg')
             .attr('width', size[0])
             .attr('height', size[1])
             .append('g')
