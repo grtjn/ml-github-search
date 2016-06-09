@@ -19,6 +19,17 @@ app.use(expressSession({
   resave: true
 }));
 
+//
+// Uncomment the following to enfore defaultUser to by-pass authentication entirely
+//
+// Note: consider blocking update calls in the proxy when enabling this
+//
+app.use(function (req, res, next) {
+  var options = require('./utils/options')();
+  req.session.user = { name: options.defaultUser, password: options.defaultPass, profile: { fullname: 'Guest' } };
+  next();
+});
+
 app.use(cookieParser());
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());

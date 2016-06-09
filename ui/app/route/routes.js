@@ -62,7 +62,6 @@
         url: '/detail{uri:path}',
         params: {
           uri: {
-            squash: true,
             value: null
           }
         },

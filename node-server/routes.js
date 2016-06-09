@@ -5,47 +5,50 @@
 var router = require('express').Router();
 var four0four = require('./utils/404')();
 var http = require('http');
-var config = require('../gulp.config')();
-
-var environment = process.env.NODE_ENV;
-var envJson = getEnvOptions(environment === 'build' ? 'prod' : 'local');
-
-var options = {
-  appPort: process.env.APP_PORT || envJson['node-port'] || config.defaultPort,
-  mlHost: process.env.ML_HOST || envJson['ml-host'] || config.marklogic.host,
-  mlHttpPort: process.env.ML_PORT || envJson['ml-http-port'] || config.marklogic.httpPort,
-  defaultUser: process.env.ML_APP_USER || envJson['ml-app-user'] || config.marklogic.user,
-  defaultPass: process.env.ML_APP_PASS || envJson['ml-app-pass'] || config.marklogic.password
-};
-
-function getEnvOptions(env) {
-  var envJson;
-  var envFile = '../' + env + '.json';
-
-  try {
-    envJson = require(envFile);
-    console.log(envJson);
-  }
-  catch (e) {
-    envJson = {};
-    console.log('Couldn\'t find ' + envFile + '; you can create this file to override properties - ' +
-      '`gulp init-local` creates local.json which can be modified for other environments as well');
-  }
-
-  return envJson;
-}
+var options = require('./utils/options')();
 
 router.get('/user/status', function(req, res) {
-  // faking session user to short-cut to defaultUser
-  req.session.user = { name: options.defaultUser, password: options.defaultPass, profile: null };
+  var headers = req.headers;
   noCache(res);
   if (req.session.user === undefined) {
-    res.send('{"authenticated": false}');
+    res.send({authenticated: false});
   } else {
-    res.send({
-      authenticated: true,
-      username: req.session.user.name,
-      profile: req.session.user.profile
+    delete headers['content-length'];
+    var status = http.get({
+      hostname: options.mlHost,
+      port: options.mlHttpPort,
+      path: '/v1/documents?uri=/api/users/' + req.session.user.name + '.json',
+      headers: headers,
+      auth: req.session.user.name + ':' + req.session.user.password
+    }, function(response) {
+      if (response.statusCode === 200) {
+        response.on('data', function(chunk) {
+          var json = JSON.parse(chunk);
+          if (json.user !== undefined) {
+            res.status(200).send({
+              authenticated: true,
+              username: req.session.user.name,
+              profile: json.user
+            });
+          } else {
+            console.log('did not find chunk.user');
+          }
+        });
+      } else if (response.statusCode === 404) {
+        //no profile yet for user
+        res.status(200).send({
+          authenticated: true,
+          username: req.session.user.name,
+          profile: req.session.user.profile || {}
+        });
+      } else {
+        res.send({authenticated: false});
+      }
+    });
+
+    status.on('error', function(e) {
+      console.log(JSON.stringify(e));
+      console.log('status check failed: ' + e.statusCode);
     });
   }
 });
@@ -81,7 +84,8 @@ router.post('/user/login', function(req, res) {
       };
       res.status(200).send({
         authenticated: true,
-        username: username
+        username: username,
+        profile: {}
       });
     } else {
       console.log('code: ' + response.statusCode);
@@ -94,15 +98,12 @@ router.post('/user/login', function(req, res) {
         response.on('data', function(chunk) {
           var json = JSON.parse(chunk);
           if (json.user !== undefined) {
-            req.session.user.profile = {
-              fullname: json.user.fullname,
-              emails: json.user.emails
-            };
             res.status(200).send({
               authenticated: true,
               username: username,
-              profile: req.session.user.profile
+              profile: json.user
             });
+            req.session.user.profile = json.user;
           } else {
             console.log('did not find chunk.user');
           }

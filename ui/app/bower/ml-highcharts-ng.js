@@ -245,20 +245,24 @@
         var origSearchFun = mlSearch.search;
         mlSearch.search = reloadChartsDecorator(origSearchFun);
 
-        loadData();
-
-        scope.$watch('structuredQuery', function() {
+        if (attrs.structuredQuery) {
+          scope.$watch('structuredQuery', function(newVal) {
+            if (newVal) {
+              loadData();
+            }
+          });
+        } else {
           loadData();
-        });
-          
+        }
+
       }
 
       return {
         restrict: 'E',
         templateUrl: '/ml-highcharts/templates/ml-highchart.html',
         scope: {
-          'mlSearch': '=',
-          'structuredQuery': '=',
+          'mlSearch': '=?',
+          'structuredQuery': '=?',
           'highchartConfig': '=',
           'callback': '&'
         },
@@ -273,11 +277,11 @@
   angular.module('ml.highcharts')
     .factory('HighchartsHelper', ['$q', 'MLQueryBuilder', 'MLRest', 'MLSearchFactory', function($q, MLQueryBuilder, MLRest, MLSearchFactory) {
       var highchartsHelper = {};
-      highchartsHelper.seriesData = function(data, chartType, categories) {
-        var seriesData = [{
-          name: null,
-          data: []
-        }];
+      highchartsHelper.seriesData = function(data, chartType, categories, yCategories) {
+        var seriesData = [];
+
+        // Loop over all data points to push them into the correct series,
+        // based on either seriesName, or use facetNames as default..
         angular.forEach(data, function(dp) {
           var series;
           if (dp.seriesName) {
@@ -294,53 +298,50 @@
           } else {
             series = seriesData[0];
           }
-          if (categories.length) {
-            angular.forEach(categories, function(cat, catIndex) {
-              if (cat === dp.xCategory) {
-                series = _.filter(seriesData, function(value) {
-                  var seriesMatches = true;
-                  if (dp.seriesName) {
-                    seriesMatches = value.name === dp.seriesName;
-                  }
-                  return !value.data[catIndex] && seriesMatches;
-                })[0];
-                if (!series) {
-                  series = {
-                    name: dp.seriesName,
-                    data: []
-                  };
-                  seriesData.push(series);
-                }
-                series.data[catIndex] = dp;
-              }
-            });
+          if (!series) {
+            series = {
+              name: dp.facetNames.join(' - '),
+              data: []
+            };
+            seriesData.push(series);
+          }
+
+          // Add data in order of categories in case xCategory is filled..
+          if (dp.xCategory) {
+            var catIndex = categories.indexOf(dp.xCategory);
+            series.data[catIndex] = dp;
           } else {
             series.data.push(dp);
           }
         });
-        if (categories.length) {
+
+        // If categories, use catIndex for x and/or y..
+        if (categories.length || yCategories.length) {
           angular.forEach(seriesData, function(series) {
+            angular.forEach(series.data, function(dp) {
+              if (dp.xCategory && dp.x === undefined) {
+                dp.x = categories.indexOf(dp.xCategory);
+              }
+              if (dp.yCategory && dp.y === undefined) {
+                dp.y = yCategories.indexOf(dp.yCategory);
+              }
+            });
+
+            // Make sure series data ordered by categories has no gaps..
             angular.forEach(categories, function(cat, catIndex) {
               if (!series.data[catIndex]) {
-                series.data[catIndex] = {
-                  name: null,
-                  x: 0,
-                  y: 0,
-                  z: 0
-                };
+                series.data[catIndex] = {};
               }
             });
           });
         }
-        return _.filter(seriesData, function(val) {
-          return val.name || (val.data && val.data.length);
-        });
+        return seriesData;
       };
 
       highchartsHelper.chartFromConfig = function(highchartConfig, mlSearch, callback) {
         var d = $q.defer();
         var chartType = highchartConfig.options.chart.type;
-        var chart = angular.copy(highchartConfig);
+        var chart = highchartConfig;
         if (!mlSearch) {
           mlSearch = MLSearchFactory.newContext();
         }
@@ -365,10 +366,49 @@
         mlSearch.getStoredOptions(mlSearch.options.queryOptions).then(function(data) {
           if (data.options && data.options.constraint && data.options.constraint.length) {
             highchartsHelper.getChartData(mlSearch, data.options.constraint, highchartConfig, highchartConfig.resultLimit).then(function(values) {
-              chart.series = highchartsHelper.seriesData(values.data, chartType, values.categories);
+              chart.series = highchartsHelper.seriesData(values.data, chartType, values.categories, values.yCategories);
               if (values.categories && values.categories.length) {
+                chart.xAxis.type = 'category';
                 chart.xAxis.categories = values.categories;
+                chart.xAxis.min = 0;
+                chart.xAxis.max = chart.xAxis.categories.length - 1;
+
+                if (chart.options.chart.type === 'bubble') {
+                  // Add two extra empty-string categories for extra padding left and right..
+                  // Seems clumsy, but simplest way to avoid numbers being shown left and right..
+                  chart.xAxis.categories.unshift('');
+                  chart.xAxis.categories.push('');
+                  chart.xAxis.max = chart.xAxis.max + 2;
+                  angular.forEach(chart.series, function(series) {
+                    angular.forEach(series.data, function(dp) {
+                      if (dp.xCategory) {
+                        dp.x = dp.x + 1;
+                      }
+                    });
+                  });
+                }
               }
+              if (values.yCategories && values.yCategories.length) {
+                chart.yAxis.type = 'category';
+                chart.yAxis.categories = values.yCategories;
+
+                if (chart.options.chart.type === 'bubble') {
+                  // Add two extra empty-string categories for extra padding left and right..
+                  // Seems clumsy, but simplest way to avoid numbers being shown left and right..
+                  chart.yAxis.categories.unshift('');
+                  chart.yAxis.categories.push('');
+//                  chart.yAxis.max = chart.xAxis.max + 2;
+                  angular.forEach(chart.series, function(series) {
+                    angular.forEach(series.data, function(dp) {
+                      if (dp.yCategory) {
+                        dp.y = dp.y + 1;
+                      }
+                    });
+                  });
+                }
+              }
+              chart.legend = chart.legert || {};
+              chart.legend.enabled = (chart.series.length > 1);
               d.resolve(chart);
             });
           }
@@ -380,12 +420,14 @@
         var dataConfig = {
           xCategoryAxis: highchartConfig.xAxisCategoriesMLConstraint,
           xAxis: highchartConfig.xAxisMLConstraint,
+          yCategoryAxis: highchartConfig.yAxisCategoriesMLConstraint,
           yAxis: highchartConfig.yAxisMLConstraint,
           zAxis: highchartConfig.zAxisMLConstraint,
           seriesName: highchartConfig.seriesNameMLConstraint,
           dataPointName: highchartConfig.dataPointNameMLConstraint,
           xCategoryAxisAggregate: highchartConfig.xAxisCategoriesMLConstraintAggregate,
           xAxisAggregate: highchartConfig.xAxisMLConstraintAggregate,
+          yCategoryAxisAggregate: highchartConfig.yAxisCategoriesMLConstraintAggregate,
           yAxisAggregate: highchartConfig.yAxisMLConstraintAggregate,
           zAxisAggregate: highchartConfig.zAxisMLConstraintAggregate
         };
@@ -417,6 +459,8 @@
           dataConfig.frequency = 'xCategory';
         } else if (highchartConfig.xAxisMLConstraint === '$frequency') {
           dataConfig.frequency = 'x';
+        } else if (highchartConfig.yAxisCategoriesMLConstraint === '$frequency') {
+          dataConfig.frequency = 'yCategory';
         } else if (highchartConfig.yAxisMLConstraint === '$frequency') {
           dataConfig.frequency = 'y';
         } else if (highchartConfig.zAxisMLConstraint === '$frequency') {
@@ -426,6 +470,7 @@
         dataConfig.facets = {
           xCategoryAxisIndex: filteredFacetNames.indexOf(dataConfig.xCategoryAxis),
           xAxisIndex: filteredFacetNames.indexOf(dataConfig.xAxis),
+          yCategoryAxisIndex: filteredFacetNames.indexOf(dataConfig.yCategoryAxis),
           yAxisIndex: filteredFacetNames.indexOf(dataConfig.yAxis),
           zAxisIndex: filteredFacetNames.indexOf(dataConfig.zAxis),
           seriesNameIndex: filteredFacetNames.indexOf(dataConfig.seriesName),
@@ -435,6 +480,7 @@
         dataConfig.values = {
           xCategoryAxisIndex: filteredValueNames.indexOf(dataConfig.xCategoryAxis),
           xAxisIndex: filteredValueNames.indexOf(dataConfig.xAxis),
+          yCategoryAxisIndex: filteredValueNames.indexOf(dataConfig.yCategoryAxis),
           yAxisIndex: filteredValueNames.indexOf(dataConfig.yAxis),
           zAxisIndex: filteredValueNames.indexOf(dataConfig.zAxis),
           seriesNameIndex: filteredValueNames.indexOf(dataConfig.seriesName),
@@ -534,10 +580,12 @@
         var facetNames = _.without(
           [highchartConfig.seriesNameMLConstraint, highchartConfig.dataPointNameMLConstraint,
             highchartConfig.xAxisCategoriesMLConstraint, highchartConfig.xAxisMLConstraint,
-            highchartConfig.yAxisMLConstraint, highchartConfig.zAxisMLConstraint
+            highchartConfig.yAxisCategoriesMLConstraint, highchartConfig.yAxisMLConstraint,
+            highchartConfig.zAxisMLConstraint
           ], null, undefined, '$frequency');
 
         var valueIndexes = [];
+        var yValueIndexes = [];
         var facetData = [];
         var facetsPromise;
         if (mlSearch.results.facets) {
@@ -621,14 +669,18 @@
                               name: getValue(_.without([vals[dataConfig.values.dataPointNameIndex], facetCombination[dataConfig.facets.dataPointNameIndex]], null, undefined)[0]),
                               xCategory: getValue(_.without([vals[dataConfig.values.xCategoryAxisIndex], facetCombination[dataConfig.facets.xCategoryAxisIndex]], null, undefined)[0]),
                               x: getValue(_.without([vals[dataConfig.values.xAxisIndex], facetCombination[dataConfig.facets.xAxisIndex]], null, undefined)[0]),
+                              yCategory: getValue(_.without([vals[dataConfig.values.yCategoryAxisIndex], facetCombination[dataConfig.facets.yCategoryAxisIndex]], null, undefined)[0]),
                               y: getValue(_.without([vals[dataConfig.values.yAxisIndex], facetCombination[dataConfig.facets.yAxisIndex]], null, undefined)[0]),
                               z: getValue(_.without([vals[dataConfig.values.zAxisIndex], facetCombination[dataConfig.facets.zAxisIndex]], null, undefined)[0])
                             };
                             if (dataPoint.xCategory && valueIndexes.indexOf(dataPoint.xCategory) < 0) {
                               valueIndexes.push(dataPoint.xCategory);
                             }
+                            if (dataPoint.yCategory && yValueIndexes.indexOf(dataPoint.yCategory) < 0) {
+                              yValueIndexes.push(dataPoint.yCategory);
+                            }
                             if (!dataPoint.name) {
-                              dataPoint.name = _.without([dataPoint.seriesName, dataPoint.xCategory, dataPoint.x, dataPoint.y, dataPoint.z], null, undefined).join();
+                              dataPoint.name = _.without([dataPoint.seriesName, dataPoint.xCategory, dataPoint.x, dataPoint.yCategory, dataPoint.y, dataPoint.z], null, undefined).join();
                             }
                             dataPoint[dataConfig.frequency] = tup.frequency;
                             dataPoint.frequency = tup.frequency;
@@ -638,18 +690,22 @@
                           angular.forEach(results['values-response']['distinct-value'], function(valueObj) {
                             var dataPoint = {
                               facetNames: facetNames,
-                              seriesName: getValue(_.without([(dataConfig.values.seriesNameIndex > -1) ? valueObj : null, facetCombination[dataConfig.facets.seriesNameIndex]], null, undefined)[0]),
+                              seriesName: getValue(_.without([(dataConfig.values.seriesNameIndex > -1) ? valueObj : null, facetCombination[dataConfig.facets.seriesNameIndex], { _value: facetNames[0] }], null, undefined)[0]),
                               name: getValue(_.without([(dataConfig.values.dataPointNameIndex > -1) ? valueObj : null, facetCombination[dataConfig.facets.dataPointNameIndex]], null, undefined)[0]),
                               xCategory: getValue(_.without([(dataConfig.values.xCategoryAxisIndex > -1) ? valueObj : null, facetCombination[dataConfig.facets.xCategoryAxisIndex]], null, undefined)[0]),
                               x: getValue(_.without([(dataConfig.values.xAxisIndex > -1) ? valueObj : null, facetCombination[dataConfig.facets.xAxisIndex]], null, undefined)[0]),
+                              yCategory: getValue(_.without([(dataConfig.values.yCategoryAxisIndex > -1) ? valueObj : null, facetCombination[dataConfig.facets.yCategoryAxisIndex]], null, undefined)[0]),
                               y: getValue(_.without([(dataConfig.values.yAxisIndex > -1) ? valueObj : null, facetCombination[dataConfig.facets.yAxisIndex]], null, undefined)[0]),
                               z: getValue(_.without([(dataConfig.values.zAxisIndex > -1) ? valueObj : null, facetCombination[dataConfig.facets.zAxisIndex]], null, undefined)[0])
                             };
                             if (dataPoint.xCategory && valueIndexes.indexOf(dataPoint.xCategory) < 0) {
                               valueIndexes.push(dataPoint.xCategory);
                             }
+                            if (dataPoint.yCategory && yValueIndexes.indexOf(dataPoint.yCategory) < 0) {
+                              yValueIndexes.push(dataPoint.yCategory);
+                            }
                             if (!dataPoint.name) {
-                              dataPoint.name = _.without([dataPoint.xCategory, dataPoint.x, dataPoint.y, dataPoint.z], null, undefined).join();
+                              dataPoint.name = _.without([dataPoint.xCategory, dataPoint.x, dataPoint.yCategory, dataPoint.y, dataPoint.z], null, undefined).join();
                             }
                             dataPoint[dataConfig.frequency] = valueObj.frequency;
                             dataPoint.frequency = valueObj.frequency;
@@ -695,7 +751,8 @@
                     data: facetData.sort(function(a, b) {
                       return b.frequency - a.frequency;
                     }),
-                    categories: valueIndexes
+                    categories: valueIndexes,
+                    yCategories: yValueIndexes
                   };
                 });
               });
@@ -709,6 +766,7 @@
                   name: getValue(facetCombination[dataConfig.facets.dataPointNameIndex]),
                   xCategory: getValue(facetCombination[dataConfig.facets.xCategoryAxisIndex]),
                   x: getValue(facetCombination[dataConfig.facets.xAxisIndex]),
+                  yCategory: getValue(facetCombination[dataConfig.facets.yCategoryAxisIndex]),
                   y: getValue(facetCombination[dataConfig.facets.yAxisIndex]),
                   z: getValue(facetCombination[dataConfig.facets.zAxisIndex])
                 };

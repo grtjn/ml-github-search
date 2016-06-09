@@ -61,5 +61,9 @@
     $scope.$watch(userService.currentUser, function(newValue) {
       ctrl.currentUser = newValue;
     });
+
+    ctrl.resultLabel = function(result) {
+      return result.uri.replace(/^\/([^\/]+)\/(.*)\.json$/, '$1 / $2');
+    };
   }
 }());

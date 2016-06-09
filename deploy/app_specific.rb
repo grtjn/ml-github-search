@@ -18,7 +18,7 @@ class ServerConfig
   
   def deploy_packages
     password_prompt
-    system %Q!mlpm deploy -u #{ @properties['ml.user'] } \
+    system %Q!mlpm deploy -u #{ @ml_username } \
                           -p #{ @ml_password } \
                           -H #{ @properties['ml.server'] } \
                           -P #{ @properties['ml.app-port'] }!
