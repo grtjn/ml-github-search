@@ -3,22 +3,13 @@
   'use strict';
 
   angular.module('app.search')
-    .factory('SearchModel', SearchModel)
     .controller('SearchCtrl', SearchCtrl);
 
-  SearchModel.$inject = ['MLSearchFactory'];
   SearchCtrl.$inject = ['$scope', '$location', 'userService', 'SearchModel'];
 
   // inherit from MLSearchController
   var superCtrl = MLSearchController.prototype;
   SearchCtrl.prototype = Object.create(superCtrl);
-
-  function SearchModel(searchFactory) {
-    var mlSearch = searchFactory.newContext();
-    return {
-      mlSearch: mlSearch
-    };
-  }
 
   function SearchCtrl($scope, $location, userService, searchModel) {
     var ctrl = this;

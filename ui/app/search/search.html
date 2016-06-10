@@ -1,27 +1,50 @@
 <div class="row" ng-if="!ctrl.currentUser">Please log in to see content</div>
 <div class="search row" ng-if="ctrl.currentUser">
   <div class="col-md-1">
-    <button class="btn btn-default" ui-sref="root">Back</button>
+    <button class="btn btn-default" ui-sref="root.landing">Back</button>
   </div>
   <div class="col-md-10">
     <h1>Search through MarkLogic repositories on Github</h1>
-    <p>This website allows you to find MarkLogic-related repositories on Github more easily. It uses <a href="http://registry.demo.marklogic.com/package/ml-github-api" target="_blank">ml-github-api</a> to access the Github API to find MarkLogic-related repositories, and gather information for the benefit of searching inside MarkLogic. It uses the schedule provided in that project to refresh the contents inside MarkLogic every hour.</p>
-    <div class="row">
-      <ml-input qtext="ctrl.qtext" search="ctrl.search(qtext)" suggest="ctrl.suggest(val)" template="app/search/ml-input-fa.html" class="search"></ml-input>
-    </div>
-    <div class="search row" ng-if="ctrl.currentUser">
-      <ml-facets class="col-md-3 right-col" facets="ctrl.response.facets" toggle="ctrl.toggleFacet(facet, value)" active-facets="ctrl.mlSearch.activeFacets" negate="ctrl.toggleNegatedFacet(facet,value)" show-more="ctrl.showMoreFacets(facet, facetName)"></ml-facets>
-      <div class="col-md-9">
-        <h4 ng-if="ctrl.response.total === 0">No results to show</h4>
 
-        <div ng-if="ctrl.response.total > 0" class="results">
-          <div class="pagination-ctrls">
-            <uib-pagination class="pagination pagination-sm" ng-model="ctrl.page" ng-change="ctrl.search()" max-size="10" boundary-links="true" total-items="ctrl.response.total" items-per-page="ctrl.response['page-length']">
-            </uib-pagination>
-            <ml-snippet set-snippet="ctrl.setSnippet(type)"></ml-snippet>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <i class="fa fa-chevron-up pull-right" ng-show="$root.noteClosed" ng-click="$root.noteClosed = !$root.noteClosed"></i>
+        <i class="fa fa-chevron-down pull-right" ng-hide="$root.noteClosed" ng-click="$root.noteClosed = !$root.noteClosed"></i>
+        <h3 class="panel-title">About</h3>
+      </div>
+      <div class="panel-body" ng-hide="!!$root.noteClosed">
+        
+      This website allows you to find MarkLogic-related repositories on Github more easily. It is built using <a href="https://github.com/marklogic/slush-marklogic-node/wiki" target="_blank">slush-marklogic-node</a> with all its out of the box features, and the 'blue' theme. It uses <a href="http://registry.demo.marklogic.com/package/ml-github-api" target="_blank">ml-github-api</a> to access the Github API to find MarkLogic-related repositories, and gather information for the benefit of searching inside MarkLogic. It uses the schedule provided in that project to refresh the contents inside this MarkLogic database every hour. It leverages <a href="https://github.com/ryanjdew/ml-highcharts-ng#ml-highcharts-ng" target="_blank">ml-highcharts-ng</a> to draw below charts, and <a href="http://grtjn.github.io/d3-cloud-ng/#/" target="_blank">d3-cloud-ng</a> to draw the keywords tag cloud. Dashboard and Seach page use the same search context, so drilling down in one, will change both.
+      </div>
+    </div>
+
+    <div class="panel panel-primary">
+      <div class="panel-heading">
+        <i class="fa fa-chevron-up pull-right" ng-show="$root.searchClosed" ng-click="$root.searchClosed = !$root.searchClosed"></i>
+        <i class="fa fa-chevron-down pull-right" ng-hide="$root.searchClosed" ng-click="$root.searchClosed = !$root.searchClosed"></i>
+        <h3 class="panel-title">Search</h3>
+      </div>
+      <div class="panel-body" ng-hide="!!$root.searchClosed">
+        <div class="row">
+          <div class="col-md-12">
+            <ml-input qtext="ctrl.qtext" search="ctrl.search(qtext)" suggest="ctrl.suggest(val)" template="app/search/ml-input-fa.html" class="search"></ml-input>
           </div>
-          <ml-metrics search="ctrl.response" ></ml-metrics>
-          <ml-results template="app/search/search-results.html" results="ctrl.response.results" label="ctrl.resultLabel(result)"></ml-results>
+        </div>
+        <div class="search row" ng-if="ctrl.currentUser">
+          <ml-facets class="col-md-3 right-col" facets="ctrl.response.facets" toggle="ctrl.toggleFacet(facet, value)" active-facets="ctrl.mlSearch.activeFacets" negate="ctrl.toggleNegatedFacet(facet,value)" show-more="ctrl.showMoreFacets(facet, facetName)"></ml-facets>
+          <div class="col-md-9">
+            <h4 ng-if="ctrl.response.total === 0">No results to show</h4>
+
+            <div ng-if="ctrl.response.total > 0" class="results">
+              <div class="pagination-ctrls">
+                <uib-pagination class="pagination pagination-sm" ng-model="ctrl.page" ng-change="ctrl.search()" max-size="10" boundary-links="true" total-items="ctrl.response.total" items-per-page="ctrl.response['page-length']">
+                </uib-pagination>
+                <ml-snippet set-snippet="ctrl.setSnippet(type)"></ml-snippet>
+              </div>
+              <ml-metrics search="ctrl.response" ></ml-metrics>
+              <ml-results template="app/search/search-results.html" results="ctrl.response.results" label="ctrl.resultLabel(result)"></ml-results>
+            </div>
+          </div>
         </div>
       </div>
     </div>

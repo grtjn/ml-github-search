@@ -247,10 +247,16 @@
 
         if (attrs.structuredQuery) {
           scope.$watch('structuredQuery', function(newVal) {
-            if (newVal) {
+            if (newVal && !angular.equals({}, newVal)) {
               loadData();
             }
-          });
+          }, true);
+        } else if (attrs.mlSearch) {
+          scope.$watch('mlSearch.results', function(newVal) {
+            if (newVal && !angular.equals({}, newVal)) {
+              loadData();
+            }
+          }, true);
         } else {
           loadData();
         }
@@ -520,12 +526,14 @@
         if (additionalQuery && additionalQuery.length) {
           query.queries.unshift.apply(query.queries, additionalQuery);
         }
+        var qtext = mlSearch && mlSearch.getText();
         var constraintOptions = {
           'search': {
             'options': {
               'constraint': constraints
             },
-            'query': query
+            'query': query,
+            'qtext': qtext || ''
           }
         };
         if (filteredConstraints.length > 1) {
