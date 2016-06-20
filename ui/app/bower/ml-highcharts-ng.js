@@ -413,8 +413,8 @@
                   });
                 }
               }
-              chart.legend = chart.legert || {};
-              chart.legend.enabled = (chart.series.length > 1);
+              chart.legend = chart.legend || {};
+              chart.legend.enabled = chart.legend.enabled !== undefined ? chart.legend.enabled : (chart.series.length > 1);
               d.resolve(chart);
             });
           }
@@ -698,7 +698,7 @@
                           angular.forEach(results['values-response']['distinct-value'], function(valueObj) {
                             var dataPoint = {
                               facetNames: facetNames,
-                              seriesName: getValue(_.without([(dataConfig.values.seriesNameIndex > -1) ? valueObj : null, facetCombination[dataConfig.facets.seriesNameIndex], { _value: facetNames[0] }], null, undefined)[0]),
+                              seriesName: getValue(_.without([(dataConfig.values.seriesNameIndex > -1) ? valueObj : null, facetCombination[dataConfig.facets.seriesNameIndex]], null, undefined)[0]),
                               name: getValue(_.without([(dataConfig.values.dataPointNameIndex > -1) ? valueObj : null, facetCombination[dataConfig.facets.dataPointNameIndex]], null, undefined)[0]),
                               xCategory: getValue(_.without([(dataConfig.values.xCategoryAxisIndex > -1) ? valueObj : null, facetCombination[dataConfig.facets.xCategoryAxisIndex]], null, undefined)[0]),
                               x: getValue(_.without([(dataConfig.values.xAxisIndex > -1) ? valueObj : null, facetCombination[dataConfig.facets.xAxisIndex]], null, undefined)[0]),
