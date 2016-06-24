@@ -4,7 +4,7 @@
     <button class="btn btn-default" ui-sref="root.landing">Back</button>
   </div>
   <div class="col-md-10">
-    <h1>Search through MarkLogic repositories on Github</h1>
+    <h1 class="text-center">Search through MarkLogic projects on Github!</h1>
 
     <div class="panel panel-default">
       <div class="panel-heading">
@@ -13,8 +13,7 @@
         <h3 class="panel-title">About</h3>
       </div>
       <div class="panel-body" ng-hide="!!$root.noteClosed">
-        
-      This website allows you to find MarkLogic-related repositories on Github more easily. It is built using <a href="https://github.com/marklogic/slush-marklogic-node/wiki" target="_blank">slush-marklogic-node</a> with all its out of the box features, and the 'blue' theme. It uses <a href="http://registry.demo.marklogic.com/package/ml-github-api" target="_blank">ml-github-api</a> to access the Github API to find MarkLogic-related repositories, and gather information for the benefit of searching inside MarkLogic. It uses the schedule provided in that project to refresh the contents inside this MarkLogic database every hour. It leverages <a href="https://github.com/ryanjdew/ml-highcharts-ng#ml-highcharts-ng" target="_blank">ml-highcharts-ng</a> to draw below charts, and <a href="http://grtjn.github.io/d3-cloud-ng/#/" target="_blank">d3-cloud-ng</a> to draw the keywords tag cloud. Dashboard and Seach page use the same search context, so drilling down in one, will change both.
+        This website allows you to find MarkLogic-related repositories and gists on Github more easily. It is built using <a href="https://github.com/marklogic/slush-marklogic-node/wiki" target="_blank">marklogic / slush-marklogic-node</a> with all its out of the box features, and the 'blue' theme. It uses <a href="http://registry.demo.marklogic.com/package/ml-github-api" target="_blank">grtjn / ml-github-api</a> to access the Github API to find MarkLogic-related repositories and gists, and gather information for the benefit of searching inside MarkLogic. It uses the schedule provided in that project to refresh the contents inside this MarkLogic database every hour. It leverages <a href="https://github.com/ryanjdew/ml-highcharts-ng#ml-highcharts-ng" target="_blank">ryanjdew / ml-highcharts-ng</a> to draw below charts, and <a href="http://grtjn.github.io/d3-cloud-ng/#/" target="_blank">grtjn / d3-cloud-ng</a> to draw the keywords tag cloud. Dashboard and Seach page use the same search context, so drilling down in one, will change both. The code is available on Github: <a href="https://github.com/grtjn/ml-github-search" target="_blank">grtjn / ml-github-search</a>.
       </div>
     </div>
 

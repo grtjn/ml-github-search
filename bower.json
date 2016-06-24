@@ -20,7 +20,8 @@
     "marked": ">=0.3.5",
     "angular-marked": ">=0.0.21",
     "ml-highcharts-ng": ">=0.0.10",
-    "d3-cloud-ng": "^0.9.4"
+    "d3-cloud-ng": "^0.9.4",
+    "angular-gist": "^1.0.0"
   },
   "devDependencies": {
     "angular-mocks": "^1.4",

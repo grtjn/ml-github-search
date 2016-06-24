@@ -10,6 +10,7 @@
         <a ng-if="ctrl.doc.type === 'mlpm'" href="registry.demo.marklogic.com/package/{{ctrl.doc.repo.name}}" target="_blank"><img width="50" src="https://avatars3.githubusercontent.com/u/189902?v=3&s=50" class="pull-right"></a>
         <a ng-if="ctrl.doc.type === 'bower'" href="https://libraries.io/bower/{{ctrl.doc.repo.name}}" target="_blank"><img width="50" src="http://bower.io/img/bower-logo.png" class="pull-right"></a>
         <a ng-if="ctrl.doc.type === 'npm'" href="https://www.npmjs.com/package/{{ctrl.doc.repo.name}}" target="_blank"><img width="50" src="https://avatars0.githubusercontent.com/u/6078720?v=3&s=50" class="pull-right"></a>
+
         <dl class="dl-horizontal">
           <dt>Name</dt>
           <dd><a ng-href="/search?f=owner:{{ctrl.doc.repo.owner.login}}">{{ctrl.doc.repo.owner.login}}</a> / <a href="{{ctrl.doc.repo.html_url}}" target="_blank">{{ctrl.doc.repo.name}}</a></dd>
@@ -44,20 +45,20 @@
           <dt>Language</dt>
           <dd><a ng-href="/search?f=language:{{ctrl.doc.repo.language}}">{{ctrl.doc.repo.language}}</a></dd>
 
-          <dt>Size</dt>
+          <dt>{{ ctrl.doc.repo.gist ? 'Files' : 'Size' }}</dt>
           <dd>{{ctrl.doc.repo.size}}</dd>
 
-          <dt>Watchers</dt>
+          <dt ng-if="ctrl.doc.repo.watchers_count">Watchers</dt>
           <dd><a href="{{ctrl.doc.repo.html_url}}/watchers" target="_blank">{{ctrl.doc.repo.watchers_count}}</a></dd>
 
           <dt>Stars</dt>
           <dd><a href="{{ctrl.doc.repo.html_url}}/stargazers" target="_blank">{{ctrl.doc.repo.stargazers_count}}</a></dd>
 
           <dt>Forks</dt>
-          <dd><a href="{{ctrl.doc.repo.html_url}}/network" target="_blank">{{ctrl.doc.repo.forks_count}}</a></dd>
+          <dd><a href="{{ctrl.doc.repo.html_url}}/{{ ctrl.doc.repo.gist ? 'forks' : 'network' }}" target="_blank">{{ctrl.doc.repo.forks_count}}</a></dd>
 
-          <dt>Issues</dt>
-          <dd><a href="{{ctrl.doc.repo.html_url}}/issues" target="_blank">{{ctrl.doc.repo.open_issues_count}}</a></dd>
+          <dt>{{ ctrl.doc.repo.gist ? 'Comments' : 'Issues' }}</dt>
+          <dd><a href="{{ctrl.doc.repo.html_url}}{{ ctrl.doc.repo.gist ? '#comments' : '/issues' }}" target="_blank">{{ctrl.doc.repo.open_issues_count}}</a></dd>
         </dl>
       </div>
     </div>
@@ -112,15 +113,21 @@
   </div>
   <div class="col-sm-7">
     <!-- display Github README -->
-    <div class="panel panel-default" ng-if="ctrl.doc.readme">
+    <div class="panel panel-default" ng-if="ctrl.doc.readme || ctrl.doc.mlpm.description || ctrl.doc.bower.description || ctrl.doc.package.description">
       <div class="panel-heading">README</div>
       <div class="panel-body" marked="ctrl.doc.readme" ng-if="ctrl.doc.readme">
       </div>
-      <div class="panel-body" marked="ctrl.doc.readme" ng-if="!ctrl.doc.readme && ctrl.doc.mlpm.description">
+      <div class="panel-body" marked="ctrl.doc.mlpm.description" ng-if="!ctrl.doc.readme && ctrl.doc.mlpm.description">
       </div>
-      <div class="panel-body" marked="ctrl.doc.readme" ng-if="!ctrl.doc.readme && !ctrl.doc.mlpm.description && ctrl.doc.bower.description">
+      <div class="panel-body" marked="ctrl.doc.bower.description" ng-if="!ctrl.doc.readme && !ctrl.doc.mlpm.description && ctrl.doc.bower.description">
       </div>
-      <div class="panel-body" marked="ctrl.doc.readme" ng-if="!ctrl.doc.readme && !ctrl.doc.mlpm.description && !ctrl.doc.bower.description && ctrl.doc.package.description">
+      <div class="panel-body" marked="ctrl.doc.package.description" ng-if="!ctrl.doc.readme && !ctrl.doc.mlpm.description && !ctrl.doc.bower.description && ctrl.doc.package.description">
+      </div>
+    </div>
+    <div class="panel panel-default" ng-if="ctrl.doc.repo.gist">
+      <div class="panel-heading">Code</div>
+      <div class="panel-body">
+        <gist id="{{ctrl.doc.repo.id}}"></gist>
       </div>
     </div>
     <!-- display JSON data - ->
@@ -132,6 +139,11 @@
     </div-->
   </div>
   <div class="col-md-1">
+  </div>
+</div>
+<div class="row detail">
+  <div class="col-md-12 text-center">
+    <em>Last refreshed at {{ ctrl.doc.refreshed_at | date:'short' }}</em>
   </div>
 </div>
 

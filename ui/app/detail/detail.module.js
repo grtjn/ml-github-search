@@ -4,6 +4,7 @@
   angular.module('app.detail', [
     'app.similar',
     'ui.router',
-    'hc.marked'
+    'hc.marked',
+    'gist'
   ]);
 }());
