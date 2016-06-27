@@ -208,10 +208,12 @@
       </range-field-indexes>
 
       <path-namespaces>
+<!--
         <path-namespace>
           <prefix>jbasic</prefix>
           <namespace-uri>http://marklogic.com/xdmp/json/basic</namespace-uri>
         </path-namespace>
+-->
       </path-namespaces>
 
       <range-path-indexes>
@@ -300,7 +302,7 @@
         </range-path-index>
         <range-path-index>
           <scalar-type>int</scalar-type>
-          <path-expression>jbasic:view-count</path-expression>
+          <path-expression>view-count</path-expression>
           <range-value-positions>false</range-value-positions>
           <invalid-values>reject</invalid-values>
         </range-path-index>

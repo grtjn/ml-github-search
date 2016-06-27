@@ -27,63 +27,28 @@ router.get('*', function(req, res) {
   } else if (req.path === '/documents') {
     proxy(req, res);
 
-    var propPath = req.originalUrl + '&category=properties';
+    var uri = req.query.uri;
+    var path = req.baseUrl + '/resources/count-views?rs:uri=' + encodeURIComponent(uri);
     var args = {
       hostname: options.mlHost,
       port: options.mlHttpPort,
-      method: 'GET',
-      path: propPath,
+      method: 'POST',
+      path: path,
       auth: getAuth(options, req.session)
     };
 
-    var mlGet = http.request(args, function(response) {
+    var mlPost = http.request(args, function(response) {
       response.on('data', function(chunk) {
-
-        args.method = 'POST';
-        args.headers = {
-          'X-HTTP-Method-Override': 'PATCH',
-          'Content-type': 'application/json'
-        };
-
-        var mlPut = http.request(args); // ignoring response
-
-        mlPut.on('error', function(e) {
-          console.log('Problem with POST PATCH request: ' + e.message);
-        });
-
         var props = JSON.parse(''+chunk);
-        var prop = props && props.properties && props.properties['view-count'];
-        var count = prop !== undefined ? prop + 1 : 1;
-        console.log('Incrementing view-count to ' + count + ' for ' + propPath);
-
-        mlPut.write(JSON.stringify({
-          patch: [(prop !== undefined ? {
-            replace: {
-              select: 'view-count',
-              context: '$.properties',
-              position: 'last-child',
-              content: count
-            }
-          } : {
-            insert: {
-              context: '$.properties',
-              position: 'last-child',
-              content: {
-                'view-count': count
-              }
-            }
-          })],
-          pathlang: 'jsonpath'
-        }));
-        mlPut.end();
-
+        var count = props && props['view-count'];
+        console.log('Incremented view-count for ' + uri + ' to ' + count);
       });
     });
 
-    mlGet.on('error', function(e) {
-      console.log('Problem with GET PATCH request: ' + e.message);
+    mlPost.on('error', function(e) {
+      console.log('Problem with count-views request: ' + e.message);
     });
-    mlGet.end();
+    mlPost.end();
 
   } else {
     proxy(req, res);

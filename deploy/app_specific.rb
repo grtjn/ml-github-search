@@ -30,6 +30,7 @@ class ServerConfig
       xquery version "1.0-ml";
 
       for $uri in cts:uris()
+      where not(ends-with($uri, "/"))
       return (
         $uri,
         xdmp:document-set-permissions($uri, (
@@ -39,6 +40,9 @@ class ServerConfig
       )
     },
     { :db_name => @properties["ml.modules-db"] }
+
+    r.body = parse_json r.body
+    logger.info r.body
   end
   
   def update_repos

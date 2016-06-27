@@ -188,7 +188,7 @@
       <facet-option>item-order</facet-option>
       <facet-option>descending</facet-option>
       <fragment-scope>properties</fragment-scope>
-      <path-index xmlns:jbasic="http://marklogic.com/xdmp/json/basic">jbasic:view-count</path-index>
+      <path-index>view-count</path-index>
     </range>
   </constraint>
 
