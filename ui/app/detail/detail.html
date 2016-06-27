@@ -48,7 +48,7 @@
           <dt>{{ ctrl.doc.repo.gist ? 'Files' : 'Size' }}</dt>
           <dd>{{ctrl.doc.repo.size}}</dd>
 
-          <dt ng-if="ctrl.doc.repo.watchers_count">Watchers</dt>
+          <dt ng-if="ctrl.doc.repo.watchers_count !== undefined">Watchers</dt>
           <dd><a href="{{ctrl.doc.repo.html_url}}/watchers" target="_blank">{{ctrl.doc.repo.watchers_count}}</a></dd>
 
           <dt>Stars</dt>

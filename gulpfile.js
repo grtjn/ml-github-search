@@ -611,7 +611,7 @@ function getNodeOptions(env) {
     delayTime: 1,
     env: {
       'PORT': port,
-      'NODE_ENV': isDevMode(env) ? 'dev' : 'build',
+      'NODE_ENV': env,
       'APP_PORT': port,
       'ML_HOST': args['ml-host'] || process.env.ML_HOST || envJson['ml-host'] || config.marklogic.host,
       'ML_APP_USER': args['ml-app-user'] || process.env.ML_APP_USER || envJson['ml-app-user'] || config.marklogic.user,

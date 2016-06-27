@@ -4,13 +4,12 @@
 var express = require('express');
 var expressSession = require('express-session');
 var app = express();
-var bodyParser = require('body-parser');
-var cookieParser = require('cookie-parser');
 var logger = require('morgan');
-var port = process.env.PORT || 8001;
 var four0four = require('./utils/404')();
 
-var environment = process.env.NODE_ENV;
+var options = require('./utils/options')();
+var port = options.appPort;
+var environment = options.env;
 
 app.use(expressSession({
   name: 'github-search',
@@ -19,36 +18,25 @@ app.use(expressSession({
   resave: true
 }));
 
-//
-// Uncomment the following to enfore defaultUser to by-pass authentication entirely
-//
-// Note: consider blocking update calls in the proxy when enabling this
-//
 app.use(function (req, res, next) {
   var options = require('./utils/options')();
-  req.session.user = { name: options.defaultUser, password: options.defaultPass, profile: { fullname: 'Guest' } };
+  req.session.user = { username: options.defaultUser, password: options.defaultPass, profile: { fullname: 'Guest' } };
   next();
 });
 
-app.use(cookieParser());
-app.use(bodyParser.urlencoded({extended: true}));
-app.use(bodyParser.json());
 app.use(logger('dev'));
 
-app.use('/api', require('./routes'));
-
 app.use('/v1', require('./proxy'));
-
-app.use('/create', express.static('./build/index.html'));
-app.use('/profile', express.static('./build/index.html'));
+app.use('/api', require('./routes'));
 
 console.log('About to crank up node');
 console.log('PORT=' + port);
 console.log('NODE_ENV=' + environment);
 
 switch (environment){
-  case 'build':
-    console.log('** BUILD **');
+  case 'prod':
+  case 'dev':
+    console.log('** DIST **');
     app.use(express.static('./dist/'));
     // Any invalid calls for templateUrls are under app/* and should return 404
     app.use('/app/*', function(req, res, next) {
@@ -58,9 +46,9 @@ switch (environment){
     app.use('/*', express.static('./dist/index.html'));
     break;
   default:
-    console.log('** DEV **');
+    console.log('** UI **');
     app.use(express.static('./ui/'));
-    app.use(express.static('./'));
+    app.use(express.static('./')); // for bower_components
     app.use(express.static('./tmp'));
     // Any invalid calls for templateUrls are under app/* and should return 404
     app.use('/app/*', function(req, res, next) {

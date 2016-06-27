@@ -208,12 +208,10 @@
       </range-field-indexes>
 
       <path-namespaces>
-<!--
         <path-namespace>
-          <prefix>sample</prefix>
-          <namespace-uri>http://marklogic.com/ns/sample</namespace-uri>
+          <prefix>jbasic</prefix>
+          <namespace-uri>http://marklogic.com/xdmp/json/basic</namespace-uri>
         </path-namespace>
--->
       </path-namespaces>
 
       <range-path-indexes>
@@ -230,14 +228,14 @@
         <range-path-index>
           <scalar-type>string</scalar-type>
           <path-expression>/repo/owner/login</path-expression>
-          <collation>http://marklogic.com/collation/codepoint</collation>
+          <collation>http://marklogic.com/collation//S1</collation>
           <range-value-positions>false</range-value-positions>
           <invalid-values>reject</invalid-values>
         </range-path-index>
         <range-path-index>
           <scalar-type>string</scalar-type>
           <path-expression>/type</path-expression>
-          <collation>http://marklogic.com/collation/codepoint</collation>
+          <collation>http://marklogic.com/collation//S1</collation>
           <range-value-positions>false</range-value-positions>
           <invalid-values>reject</invalid-values>
         </range-path-index>
@@ -251,14 +249,14 @@
         <range-path-index>
           <scalar-type>string</scalar-type>
           <path-expression>/repo/language</path-expression>
-          <collation>http://marklogic.com/collation/codepoint</collation>
+          <collation>http://marklogic.com/collation//S1</collation>
           <range-value-positions>false</range-value-positions>
           <invalid-values>reject</invalid-values>
         </range-path-index>
         <range-path-index>
           <scalar-type>string</scalar-type>
           <path-expression>/license</path-expression>
-          <collation>http://marklogic.com/collation/codepoint</collation>
+          <collation>http://marklogic.com/collation//S1</collation>
           <range-value-positions>false</range-value-positions>
           <invalid-values>reject</invalid-values>
         </range-path-index>
@@ -266,14 +264,12 @@
         <range-path-index>
           <scalar-type>dateTime</scalar-type>
           <path-expression>/repo/created_at</path-expression>
-          <collation>http://marklogic.com/collation/codepoint</collation>
           <range-value-positions>false</range-value-positions>
           <invalid-values>reject</invalid-values>
         </range-path-index>
         <range-path-index>
           <scalar-type>dateTime</scalar-type>
           <path-expression>/repo/updated_at</path-expression>
-          <collation>http://marklogic.com/collation/codepoint</collation>
           <range-value-positions>false</range-value-positions>
           <invalid-values>reject</invalid-values>
         </range-path-index>
@@ -281,28 +277,30 @@
         <range-path-index>
           <scalar-type>int</scalar-type>
           <path-expression>/repo/watchers_count</path-expression>
-          <collation>http://marklogic.com/collation/codepoint</collation>
           <range-value-positions>false</range-value-positions>
           <invalid-values>reject</invalid-values>
         </range-path-index>
         <range-path-index>
           <scalar-type>int</scalar-type>
           <path-expression>/repo/stargazers_count</path-expression>
-          <collation>http://marklogic.com/collation/codepoint</collation>
           <range-value-positions>false</range-value-positions>
           <invalid-values>reject</invalid-values>
         </range-path-index>
         <range-path-index>
           <scalar-type>int</scalar-type>
           <path-expression>/repo/forks_count</path-expression>
-          <collation>http://marklogic.com/collation/codepoint</collation>
           <range-value-positions>false</range-value-positions>
           <invalid-values>reject</invalid-values>
         </range-path-index>
         <range-path-index>
           <scalar-type>int</scalar-type>
           <path-expression>/repo/open_issues_count</path-expression>
-          <collation>http://marklogic.com/collation/codepoint</collation>
+          <range-value-positions>false</range-value-positions>
+          <invalid-values>reject</invalid-values>
+        </range-path-index>
+        <range-path-index>
+          <scalar-type>int</scalar-type>
+          <path-expression>jbasic:view-count</path-expression>
           <range-value-positions>false</range-value-positions>
           <invalid-values>reject</invalid-values>
         </range-path-index>

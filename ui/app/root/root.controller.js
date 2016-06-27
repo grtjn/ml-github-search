@@ -8,7 +8,7 @@
   SearchModel.$inject = ['MLSearchFactory'];
 
   function SearchModel(searchFactory) {
-    var mlSearch = searchFactory.newContext();
+    var mlSearch = searchFactory.newContext({ includeProperties: true });
     return {
       mlSearch: mlSearch
     };

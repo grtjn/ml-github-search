@@ -71,11 +71,8 @@
     </state>
   </operator>
 
-  <!-- Annotations (allowed pretty much anywhere) allow adding text or elements to feed custom components with options that would normally not validate) -->
-  <annotation>Delta options here</annotation>
-
   <constraint name="owner">
-    <range type="xs:string" facet="true" collation="http://marklogic.com/collation/codepoint">
+    <range type="xs:string" facet="true" collation="http://marklogic.com/collation//S1">
       <facet-option>limit=10</facet-option>
       <facet-option>frequency-order</facet-option>
       <facet-option>descending</facet-option>
@@ -84,7 +81,7 @@
   </constraint>
 
   <constraint name="type">
-    <range type="xs:string" facet="true" collation="http://marklogic.com/collation/codepoint">
+    <range type="xs:string" facet="true" collation="http://marklogic.com/collation//S1">
       <facet-option>limit=10</facet-option>
       <facet-option>frequency-order</facet-option>
       <facet-option>descending</facet-option>
@@ -102,7 +99,7 @@
   </constraint>
 
   <constraint name="language">
-    <range type="xs:string" facet="true" collation="http://marklogic.com/collation/codepoint">
+    <range type="xs:string" facet="true" collation="http://marklogic.com/collation//S1">
       <facet-option>limit=10</facet-option>
       <facet-option>frequency-order</facet-option>
       <facet-option>descending</facet-option>
@@ -111,7 +108,7 @@
   </constraint>
 
   <constraint name="license">
-    <range type="xs:string" facet="true" collation="http://marklogic.com/collation/codepoint">
+    <range type="xs:string" facet="true" collation="http://marklogic.com/collation//S1">
       <facet-option>limit=10</facet-option>
       <facet-option>frequency-order</facet-option>
       <facet-option>descending</facet-option>
@@ -185,25 +182,14 @@
     </range>
   </constraint>
 
-  <!-- example facet constraint below -->
-  <!--
-  <constraint name="myconstraint">
-    <range type="xs:string" facet="true">
+  <constraint name="popularity">
+    <range type="xs:int" facet="true">
       <facet-option>limit=5</facet-option>
-      <facet-option>frequency-order</facet-option>
+      <facet-option>item-order</facet-option>
       <facet-option>descending</facet-option>
-      <element ns="" name="my-el"/>
+      <fragment-scope>properties</fragment-scope>
+      <path-index xmlns:jbasic="http://marklogic.com/xdmp/json/basic">jbasic:view-count</path-index>
     </range>
   </constraint>
-  -->
 
-  <!-- example suggestion-source below -->
-  <!--
-  <suggestion-source ref="myconstraint">
-    <suggestion-option>frequency-order</suggestion-option>
-    <suggestion-option>descending</suggestion-option>
-    <suggestion-option>limit=10</suggestion-option>
-  </suggestion-source>
-  -->
-  
 </options>

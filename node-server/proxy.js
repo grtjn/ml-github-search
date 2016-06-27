@@ -24,6 +24,67 @@ router.get('*', function(req, res) {
   noCache(res);
   if (req.session.user === undefined) {
     res.status(401).send('Unauthorized');
+  } else if (req.path === '/documents') {
+    proxy(req, res);
+
+    var propPath = req.originalUrl + '&category=properties';
+    var args = {
+      hostname: options.mlHost,
+      port: options.mlHttpPort,
+      method: 'GET',
+      path: propPath,
+      auth: getAuth(options, req.session)
+    };
+
+    var mlGet = http.request(args, function(response) {
+      response.on('data', function(chunk) {
+
+        args.method = 'POST';
+        args.headers = {
+          'X-HTTP-Method-Override': 'PATCH',
+          'Content-type': 'application/json'
+        };
+
+        var mlPut = http.request(args); // ignoring response
+
+        mlPut.on('error', function(e) {
+          console.log('Problem with POST PATCH request: ' + e.message);
+        });
+
+        var props = JSON.parse(''+chunk);
+        var prop = props && props.properties && props.properties['view-count'];
+        var count = prop !== undefined ? prop + 1 : 1;
+        console.log('Incrementing view-count to ' + count + ' for ' + propPath);
+
+        mlPut.write(JSON.stringify({
+          patch: [(prop !== undefined ? {
+            replace: {
+              select: 'view-count',
+              context: '$.properties',
+              position: 'last-child',
+              content: count
+            }
+          } : {
+            insert: {
+              context: '$.properties',
+              position: 'last-child',
+              content: {
+                'view-count': count
+              }
+            }
+          })],
+          pathlang: 'jsonpath'
+        }));
+        mlPut.end();
+
+      });
+    });
+
+    mlGet.on('error', function(e) {
+      console.log('Problem with GET PATCH request: ' + e.message);
+    });
+    mlGet.end();
+
   } else {
     proxy(req, res);
   }
@@ -104,7 +165,7 @@ function getAuth(options, session) {
 // Generic proxy function used by multiple HTTP verbs
 function proxy(req, res) {
   var queryString = req.originalUrl.split('?')[1];
-  var path = '/v1' + req.path + (queryString ? '?' + queryString : '');
+  var path = req.baseUrl + req.path + (queryString ? '?' + queryString : '');
   console.log(
     req.method + ' ' + req.path + ' proxied to ' +
     options.mlHost + ':' + options.mlHttpPort + path);
@@ -132,13 +193,15 @@ function proxy(req, res) {
     });
   });
 
-  if (req.body !== undefined) {
-    mlReq.write(JSON.stringify(req.body));
-    mlReq.end();
-  }
-
   mlReq.on('error', function(e) {
     console.log('Problem with request: ' + e.message);
+    res.statusCode = 500;
+    res.end();
+  });
+
+  req.pipe(mlReq);
+  req.on('end', function() {
+    mlReq.end();
   });
 }
 
